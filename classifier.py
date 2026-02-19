@@ -1,121 +1,92 @@
 import csv
-from urllib.parse import urlparse
+import os
 
-# =========================
-# Load Dataset (Domain-based)
-# =========================
-
+# ---------- Load Dataset from links.csv ----------
 dataset = {}
+current_dir = os.path.dirname(os.path.abspath(__file__))
+csv_path = os.path.join(current_dir, "links.csv")
 
-with open("links.csv", newline="", encoding="utf-8") as file:
+with open(csv_path, newline="", encoding="utf-8") as file:
     reader = csv.DictReader(file)
     for row in reader:
-        url = row["URL"].strip().lower()
+        url = row["URL"].strip().lower().rstrip("/")
         category = row["Category"].strip().lower()
+        dataset[url] = category
 
-        parsed = urlparse(url)
-        domain = parsed.netloc.replace("www.", "")
-        dataset[domain] = category
-
-
-# =========================
-# Keywords
-# =========================
-
+# ---------- Keywords ----------
 suspicious_keywords = [
-    "login", "verify", "account", "update",
-    "secure", "bank", "confirm", "free"
+    "login", "verify", "account", "update", "secure", "bank", "confirm", "free"
 ]
 
 dangerous_keywords = [
-    "malware", "phishing", "virus",
-    "fraud", "scam"
+    "malware", "phishing", "virus", "fraud", "scam"
 ]
 
+# ✅ MUST be above classify_url
+def normalize_url_for_dataset(url: str) -> str:
+    return url.strip().lower().rstrip("/")
 
-# =========================
-# Classification Function
-# =========================
 
-def classify_url(url):
+def classify_url(url: str):
+    url_lower = url.strip().lower()
 
-    url_lower = url.lower()
-    parsed = urlparse(url_lower)
-    domain = parsed.netloc.replace("www.", "")
+    # UC-9 safety score: higher = safer
+    safety_score = 0.5
+    reason_parts = []
 
-    score = 0.0
+    url_key = normalize_url_for_dataset(url_lower)
+    dataset_label = None
 
-    # -------------------------
-    # 1) Dataset Influence
-    # -------------------------
-    if domain in dataset:
-        category = dataset[domain]
+    # 1) Dataset (strong signal)
+    if url_key in dataset:
+        dataset_label = dataset[url_key]
 
-        if category == "official":
-            score -= 0.3
-        elif category == "suspicious":
-            score += 0.4
-        elif category == "malicious":
-            score += 0.6
+        if dataset_label == "official":
+            safety_score = 0.9
+            reason_parts.append("Official trusted website (dataset)")
+        elif dataset_label == "suspicious":
+            safety_score = 0.6
+            reason_parts.append("Found in suspicious dataset")
+        elif dataset_label == "malicious":
+            safety_score = 0.1
+            reason_parts.append("Known malicious website (dataset)")
 
-    # -------------------------
-    # 2) Dangerous Keywords (max 0.5)
-    # -------------------------
-    danger_hits = sum(1 for word in dangerous_keywords if word in url_lower)
-    score += min(danger_hits * 0.3, 0.5)
+    # 2) Apply heuristic checks ONLY for unknown URLs
+    if dataset_label is None:
+        for word in dangerous_keywords:
+            if word in url_lower:
+                safety_score -= 0.35
+                reason_parts.append(f"Dangerous keyword: {word}")
 
-    # -------------------------
-    # 3) Suspicious Keywords (max 0.4)
-    # -------------------------
-    susp_hits = sum(1 for word in suspicious_keywords if word in url_lower)
-    score += min(susp_hits * 0.2, 0.4)
+        for word in suspicious_keywords:
+            if word in url_lower:
+                safety_score -= 0.20
+                reason_parts.append(f"Suspicious keyword: {word}")
 
-    # -------------------------
-    # 4) URL Structure Checks
-    # -------------------------
-    if "@" in url_lower:
-        score += 0.25
+        if "@" in url_lower:
+            safety_score -= 0.25
+            reason_parts.append("Contains @ symbol")
 
-    if url_lower.count("-") >= 3:
-        score += 0.2
+        if url_lower.startswith("https://"):
+            safety_score += 0.05
+            reason_parts.append("HTTPS present")
 
-    if len(url_lower) > 75:
-        score += 0.2
+    # Clamp to [0, 1]
+    safety_score = max(0.0, min(safety_score, 1.0))
 
-    # -------------------------
-    # 5) HTTPS Check
-    # -------------------------
-    if url_lower.startswith("https://"):
-        score -= 0.05
+    # 3) UC-9 thresholds (from your image)
+    if safety_score > 0.8:
+        status, color = "Safe", "safe"
+    elif safety_score >= 0.4:
+        status, color = "Suspicious", "warning"
     else:
-        score += 0.1
+        status, color = "Dangerous", "danger"
 
-    # -------------------------
-    # Normalize
-    # -------------------------
-    score = max(0.0, min(score, 1.0))
-
-    # -------------------------
-    # Final Decision
-    # -------------------------
-    if score >= 0.7:
-        status = "Dangerous"
-        color = "danger"
-        reason = "High risk detected"
-
-    elif score >= 0.3:
-        status = "Suspicious"
-        color = "warning"
-        reason = "Moderate risk detected"
-
-    else:
-        status = "Safe"
-        color = "safe"
-        reason = "Low risk URL"
+    reason = " | ".join(reason_parts) if reason_parts else "Unknown website, caution recommended"
 
     return {
         "status": status,
         "color": color,
         "reason": reason,
-        "score": round(score, 2)
+        "score": round(safety_score, 2),
     }
