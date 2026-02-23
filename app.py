@@ -3,6 +3,7 @@ from flask_cors import CORS
 from classifier import classify_url
 
 app = Flask(__name__)
+
 CORS(app)
 
 @app.get("/health")
