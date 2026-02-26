@@ -1,105 +1,108 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
+<head>
     <style>
-      body {
-        width: 300px;
-        font-family: "Segoe UI", Arial, sans-serif;
-        padding: 15px;
-        background-color: #f8f9fa;
-      }
+        body { 
+            width: 300px; 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            padding: 15px; 
+            background-color: #f8f9fa;
+        }
+        
+        .status-box { 
+            padding: 20px; 
+            border-radius: 8px; 
+            text-align: center; 
+            color: white; 
+            font-weight: bold; 
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    
+        /* Status Colors */
+        .danger { background-color: #dc3545 !important; } 
+        .warning { background-color: #ffc107 !important; color: #212529 !important; } 
+        .safe { background-color: #28a745 !important; } 
+        .info { background-color: #6c757d !important; }
+    
+        .url-text { 
+            font-size: 12px; 
+            color: #495057; 
+            word-break: break-all;
+            background: #e9ecef;
+            padding: 5px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+    
+        button {
+            width: 100%;
+            padding: 8px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-top: 8px; /* spacing between buttons */
+        }
+        button:hover { background-color: #0056b3; }
 
-      .status-box {
-        padding: 20px;
-        border-radius: 8px;
-        text-align: center;
-        color: white;
-        font-weight: bold;
-        margin-bottom: 15px;
-        font-size: 1.1em;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
+        /* Center text only for specific buttons */
+        .center-text {
+            text-align: center;
+        }
 
-      /* Status Colors */
-      .danger {
-        background-color: #dc3545 !important;
-      }
-      .warning {
-        background-color: #ffc107 !important;
-        color: #212529 !important;
-      }
-      .safe {
-        background-color: #28a745 !important;
-      }
-      .info {
-        background-color: #6c757d !important;
-      }
-
-      .url-text {
-        font-size: 12px;
-        color: #495057;
-        word-break: break-all;
-        background: #e9ecef;
-        padding: 5px;
-        border-radius: 4px;
-      }
-
-      button {
-        width: 100%;
-        padding: 8px;
-        cursor: pointer;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-      }
-      button:hover {
-        background-color: #0056b3;
-      }
+        /* Spacing for history/details sections */
+        #history-section {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #212529;
+        }
+        #details-section {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #212529;
+        }
     </style>
-  </head>
-  <body>
-    <h3 style="margin-top: 0; color: #343a40">Harees Security</h3>
-
+</head>
+<body>
+    <h3 style="margin-top: 0; color: #343a40;">Harees Security</h3>
+    
     <div id="status" class="status-box info">Analyzing...</div>
-
-    <p style="font-weight: bold; margin-bottom: 5px">Current Site:</p>
+    
+    <p style="font-weight: bold; margin-bottom: 5px;">Current Site:</p>
     <div class="url-text" id="url-display">Checking...</div>
+    
+    <hr style="border: 0; border-top: 1px solid #dee2e6; margin: 15px 0;">
 
-    <hr style="border: 0; border-top: 1px solid #dee2e6; margin: 15px 0" />
-
-    <!-- UC2 -->
-    <p style="font-weight: bold; margin-bottom: 5px">Check URL:</p>
+    <!-- UC2 additions (required by UC2 popup.js) -->
+    <p style="font-weight: bold; margin-bottom: 5px;">Check URL:</p>
 
     <input
-      id="url-input"
-      type="text"
-      placeholder="example.com or https://example.com"
-      style="
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ced4da;
-        border-radius: 6px;
-        margin-bottom: 10px;
-      "
+        id="url-input"
+        type="text"
+        placeholder="example.com or https://example.com"
+        style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:6px; margin-bottom:10px;"
     />
-
+    <p style="font-weight: bold; margin-bottom: 5px;">Reason:</p>
     <div
-      id="reason"
-      style="
-        font-size: 12px;
-        color: #495057;
-        background: #fff;
-        border: 1px solid #e9ecef;
-        padding: 10px;
-        border-radius: 8px;
-        margin-bottom: 10px;
-      "
+        id="reason"
+        style="font-size:12px; color:#495057; background:#fff; border:1px solid #e9ecef; padding:10px; border-radius:8px; margin-bottom:10px;"
     >
+        Enter a URL then click Analyze
     </div>
 
-    <button id="manual-check" type="button">Analyze</button>
+    <!-- Buttons with centered text -->
+    <button id="manual-check" class="center-text">Analyze</button>
+    <button id="view-history" class="center-text">View Alert History</button>
 
+    <hr>
+
+    <div id="history-section"></div>
+
+    <div id="details-section"></div>
+    
     <script src="popup.js"></script>
-  </body>
+</body>
 </html>
