@@ -19,13 +19,13 @@
             font-size: 1.1em;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-    
-        /* Status Colors */
-        .danger { background-color: #dc3545 !important; } 
-        .warning { background-color: #ffc107 !important; color: #212529 !important; } 
-        .safe { background-color: #28a745 !important; } 
-        .info { background-color: #6c757d !important; }
-    
+
+        /* Status colors (ONLY for top status box) */
+        .safe { background-color: #28a745; }
+        .suspicious { background-color: #ffc107; color: #212529; }
+        .danger { background-color: #dc3545; }
+        .info { background-color: #6c757d; }
+
         .url-text { 
             font-size: 12px; 
             color: #495057; 
@@ -35,7 +35,7 @@
             border-radius: 4px;
             margin-bottom: 10px;
         }
-    
+
         button {
             width: 100%;
             padding: 8px;
@@ -44,29 +44,54 @@
             color: white;
             border: none;
             border-radius: 4px;
-            margin-top: 8px; /* spacing between buttons */
-        }
-        button:hover { background-color: #0056b3; }
-
-        /* Center text only for specific buttons */
-        .center-text {
-            text-align: center;
+            margin-top: 8px;
         }
 
-        /* Spacing for history/details sections */
+        button:hover { 
+            background-color: #0056b3; 
+        }
+
+        /* HISTORY SECTION */
         #history-section {
             margin-top: 10px;
             font-size: 12px;
+        }
+
+        .history-item {
+            padding: 8px;
+            border-bottom: 1px solid #dee2e6;
+            cursor: pointer;
+            transition: 0.2s ease;
+            background-color: white;
             color: #212529;
         }
+
+        /* Hover colors ONLY */
+        .history-item.safe:hover {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .history-item.suspicious:hover {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .history-item.danger:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+
         #details-section {
             margin-top: 10px;
             font-size: 12px;
             color: #212529;
         }
+
     </style>
 </head>
 <body>
+
     <h3 style="margin-top: 0; color: #343a40;">Harees Security</h3>
     
     <div id="status" class="status-box info">Analyzing...</div>
@@ -74,9 +99,8 @@
     <p style="font-weight: bold; margin-bottom: 5px;">Current Site:</p>
     <div class="url-text" id="url-display">Checking...</div>
     
-    <hr style="border: 0; border-top: 1px solid #dee2e6; margin: 15px 0;">
+    <hr>
 
-    <!-- UC2 additions (required by UC2 popup.js) -->
     <p style="font-weight: bold; margin-bottom: 5px;">Check URL:</p>
 
     <input
@@ -85,24 +109,24 @@
         placeholder="example.com or https://example.com"
         style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:6px; margin-bottom:10px;"
     />
+
     <p style="font-weight: bold; margin-bottom: 5px;">Reason:</p>
+
     <div
         id="reason"
-        style="font-size:12px; color:#495057; background:#fff; border:1px solid #e9ecef; padding:10px; border-radius:8px; margin-bottom:10px;"
+        style="font-size:12px; background:#fff; border:1px solid #e9ecef; padding:10px; border-radius:8px; margin-bottom:10px;"
     >
         Enter a URL then click Analyze
     </div>
 
-    <!-- Buttons with centered text -->
-    <button id="manual-check" class="center-text">Analyze</button>
-    <button id="view-history" class="center-text">View Alert History</button>
+    <button id="manual-check">Analyze</button>
+    <button id="view-history">View Alert History</button>
 
     <hr>
 
     <div id="history-section"></div>
-
     <div id="details-section"></div>
-    
+
     <script src="popup.js"></script>
 </body>
 </html>
